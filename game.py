@@ -1,3 +1,4 @@
+# A gente só utiliza o pygame pra inicializão da janela
 import pygame
 import sys
 

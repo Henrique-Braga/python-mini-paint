@@ -1,8 +1,7 @@
-import tkinter as tk
-import collections
+import tkinter as tk # Biblioteca usada para criar interface    
+import collections # Flood Fill
 
-# --- Configurações de Cores ---
-# Mantemos as tuplas RGB para a nossa matriz interna
+# Cores em tupla RGB
 COLORS = {
     'BLACK': (0, 0, 0),
     'WHITE': (255, 255, 255),
@@ -14,17 +13,20 @@ COLORS = {
     'MAGENTA': (255, 0, 255)
 }
 
+# Converte cor para hexadecimal
 def rgb_to_hex(rgb):
     """Converte tupla RGB para formato Hexadecimal aceito pelo Tkinter (#RRGGBB)"""
     return f'#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}'
 
-# --- Constantes do Sistema ---
+# Constantes Globais, usadas para definir a área de desenho
 CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 600
 
+# Ferramentes dispoíveis
 TOOLS = ['Lapis', 'Borracha', 'Linha', 'Ret. Vazado', 'Ret. Preenchido', 'Circ. Vazado', 'Circ. Preenchido', 'Balde']
 THICKNESS = {'Fino': 1, 'Medio': 3, 'Grosso': 5}
 
+# Armazena os pixels do desenho (Framebuffer)
 class Canvas:
     """Gerencia o framebuffer (matriz 2D) e os pixels da tela de desenho."""
     def __init__(self, tk_photo_image, width, height, bg_color=COLORS['WHITE']):
@@ -33,10 +35,11 @@ class Canvas:
         self.bg_color = bg_color
         self.image = tk_photo_image
         
-        # REQUISITO: Estrutura do Canvas em matriz bidimensional: canvas[y][x]
+        # Estrutura em matriz bidimensional
         self.pixels = [[bg_color for _ in range(width)] for _ in range(height)]
         self.clear()
 
+    # Altera cor da matriz e atualiza o pixel
     def put_pixel(self, x, y, color):
         """REQUISITO: put_pixel - Altera a cor na matriz e no PhotoImage do Tkinter."""
         x, y = int(x), int(y)
@@ -45,6 +48,7 @@ class Canvas:
             # Tkinter PhotoImage exige cor em Hexadecimal
             self.image.put(rgb_to_hex(color), (x, y))
 
+    # Retorna a cor de um pixel
     def get_pixel(self, x, y):
         """REQUISITO: get_pixel - Retorna a cor atual do pixel na matriz."""
         x, y = int(x), int(y)
@@ -52,6 +56,7 @@ class Canvas:
             return self.pixels[y][x]
         return None
 
+    # Simula um pincel mais grosso
     def put_brush(self, x, y, color, thickness):
         """Aplica espessura simulando um pincel quadrado ao redor do pixel."""
         if thickness == 1:
@@ -63,6 +68,7 @@ class Canvas:
             for j in range(-offset, offset + 1):
                 self.put_pixel(x + i, y + j, color)
 
+    # Limpa a área de desenho
     def clear(self):
         """Limpa o canvas com a cor de fundo."""
         bg_hex = rgb_to_hex(self.bg_color)
@@ -72,7 +78,7 @@ class Canvas:
         row_data = "{" + " ".join([bg_hex] * self.width) + "}"
         self.image.put(" ".join([row_data] * self.height), (0, 0))
 
-
+# Classe estática, contém os algoritmos (Bresenham)
 class Algorithms:
     """Classe estática com os algoritmos matemáticos de rasterização."""
     
@@ -158,6 +164,7 @@ class Algorithms:
         for y in range(min_y, max_y + 1):
             Algorithms.draw_line(canvas, min_x, y, max_x, y, color, 1)
 
+    # Preenche regiao
     @staticmethod
     def flood_fill(canvas, start_x, start_y, target_color, replacement_color):
         if target_color == replacement_color:
@@ -177,7 +184,7 @@ class Algorithms:
                     canvas.put_pixel(nx, ny, replacement_color)
                     queue.append((nx, ny))
 
-
+# Interface do programa
 class App:
     def __init__(self, root):
         self.root = root
